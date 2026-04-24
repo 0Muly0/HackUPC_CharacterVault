@@ -31,6 +31,7 @@
     "@angular/router": "^21.1.0",
     "@dimforge/rapier3d": "^0.19.3",
     "@tweenjs/tween.js": "^25.0.0",
+    "@types/three": "^0.184.0",
     "lil-gui": "^0.21.0",
     "rxjs": "~7.8.0",
     "three": "^0.184.0",
