@@ -9,6 +9,7 @@ import { FXAAPass } from 'three/addons/postprocessing/FXAAPass.js';
 
 import * as TWEEN from '@tweenjs/tween.js';
 import GUI from 'lil-gui';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-canvas',
@@ -19,7 +20,16 @@ templateUrl: './canvas.html',
 export class Canvas implements AfterViewInit {
   @ViewChild('c') canvas!: ElementRef<HTMLCanvasElement>;
 
-  constructor(private zone: NgZone) {}
+  private camera!: THREE.PerspectiveCamera;
+
+  private raycaster: THREE.Raycaster = new THREE.Raycaster();
+  private mouse: THREE.Vector2 = new THREE.Vector2();
+  private tweenGroup: TWEEN.Group = new TWEEN.Group();
+
+  constructor(
+    private zone: NgZone,
+    private router: Router
+  ) {}
 
   async ngAfterViewInit() {
     // Base viewport params
@@ -40,14 +50,19 @@ export class Canvas implements AfterViewInit {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
 
-    const camera = new THREE.PerspectiveCamera(40, iw / ih, 0.1, 1000);
-    camera.position.y = 1.2;
-    camera.position.z = 2.2;
-    camera.rotation.x = -(25 * Math.PI) / 180;
+    this.camera = new THREE.PerspectiveCamera(40, iw / ih, 0.1, 1000);
+    //this.camera.position.y = 1.2;
+    //this.camera.position.z = 2.2;
+    //this.camera.rotation.x = -(25 * Math.PI) / 180;
+    this.camera.position.x = -0.5;
+    this.camera.position.y = 0.45;
+    this.camera.position.z = 0.70;
+    this.camera.rotation.z = 0.07;
+    this.camera.rotation.x = -Math.PI / 2;
 
     const composer = new EffectComposer(renderer);
     composer.setSize(iw, ih);
-    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(new RenderPass(scene, this.camera));
     composer.addPass(new FXAAPass());
     
     let loader: GLTFLoader;
@@ -101,53 +116,91 @@ export class Canvas implements AfterViewInit {
     bulbLightWhite.shadow.normalBias = 0.08;
     scene.add(bulbLightWhite);
 
-   
-    const raycaster = new THREE.Raycaster();
-    const mouse = new THREE.Vector2();
-    const tweenGroup = new TWEEN.Group();
+    // On click
+    this.addOnClickEvent(sheet)
 
-    this.canvas.nativeElement.addEventListener('click', (event) => {
-        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        const intersects = raycaster.intersectObject(sheet, true);
-        
-        if (intersects.length > 0) {
-            console.log("SLEC");
-            let dir = new THREE.Vector3();
-            camera.getWorldDirection(dir);
-            const startingCoords = {
-              x: camera.position.x, 
-              y: camera.position.y, 
-              z: camera.position.z, 
-              lx: camera.position.x + dir.x, 
-              ly: camera.position.y + dir.y, 
-              lz: camera.position.z + dir.z
-            };
-
-            new TWEEN.Tween(startingCoords, tweenGroup).to({x: -0.52, y: 0.51, z: 0.73, lx: -0.52, ly: 0, lz: 0.73}, 1000).onUpdate(() => {
-                camera.position.set(startingCoords.x, startingCoords.y, startingCoords.z);
-                camera.lookAt(startingCoords.lx, startingCoords.ly, startingCoords.lz);
-            }).start();
-        }
-    });
-
+    // Resize
     window.addEventListener('resize', () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     });
     
     // Render Loop
     this.zone.runOutsideAngular(() => {
-      function animate() {
+      const animate = () => {
         composer.render();
-        tweenGroup.update();
-      }
+        this.tweenGroup.update();
+      };
 
       renderer.setAnimationLoop(animate);
     });
 
+  }
+
+  private addOnClickEvent(sheet: any) {
+    this.canvas.nativeElement.addEventListener('click', (event) => {
+      /*      
+      if (intersects.length > 0) {
+        console.log("SLEC");
+        let dir = new THREE.Vector3();
+        this.camera.getWorldDirection(dir);
+        const startingCoords = {
+          x: this.camera.position.x, 
+          y: this.camera.position.y, 
+          z: this.camera.position.z, 
+          lx: this.camera.position.x + dir.x, 
+          ly: this.camera.position.y + dir.y, 
+          lz: this.camera.position.z + dir.z
+        };
+
+        new TWEEN.Tween(startingCoords, this.tweenGroup)
+        .to({x: -0.52, y: 0.51, z: 0.73, lx: -0.52, ly: 0, lz: 0.73}, 1000)
+        .onUpdate(() => {
+          this.camera.position.set(startingCoords.x, startingCoords.y, startingCoords.z);
+          this.camera.lookAt(startingCoords.lx, startingCoords.ly, startingCoords.lz);
+        })
+        .onComplete(() => {
+          this.router.navigate(['/tw-character']);
+        })
+        .start();
+      }*/
+
+    this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+    this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObject(sheet, true);
+    if (!intersects.length) return;
+
+    const state = {
+      x: this.camera.position.x,
+      y: this.camera.position.y,
+      z: this.camera.position.z,
+      rotX: this.camera.rotation.x,
+      rotZ: this.camera.rotation.z
+    };
+
+    new TWEEN.Tween(state, this.tweenGroup)
+      .to(
+        {
+          x: -0.5,
+          y: 0.45,
+          z: 0.70,
+          rotX: -Math.PI / 2,
+          rotZ: 0.07
+        },
+        1000
+      )
+      .onUpdate(() => {
+        this.camera.position.set(state.x, state.y, state.z);
+        this.camera.rotation.x = state.rotX;
+        this.camera.rotation.z = state.rotZ;
+      })
+      .onComplete(() => {
+        this.router.navigate(['/character-sheet']);
+      })
+      .start();
+  });
   }
 }
