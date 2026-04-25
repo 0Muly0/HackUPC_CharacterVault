@@ -2,7 +2,6 @@ import { AfterViewInit, Component, ElementRef, NgZone, ViewChild } from '@angula
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
@@ -50,10 +49,6 @@ export class Canvas implements AfterViewInit {
     composer.setSize(iw, ih);
     composer.addPass(new RenderPass(scene, camera));
     composer.addPass(new FXAAPass());
-
-    // let controls: OrbitControls;
-    // controls = new OrbitControls(camera, this.canvas.nativeElement);
-    // const gui = new GUI();
     
     let loader: GLTFLoader;
     loader = new GLTFLoader();
@@ -79,9 +74,9 @@ export class Canvas implements AfterViewInit {
     // Lights
     const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
-      1.5,  // strength
-      0.4,  // radius
-      0.85  // threshold
+      1.5,  
+      0.4,  
+      0.85  
     );
     composer.addPass(bloomPass);
 
@@ -106,18 +101,7 @@ export class Canvas implements AfterViewInit {
     bulbLightWhite.shadow.normalBias = 0.08;
     scene.add(bulbLightWhite);
 
-    /*
-    const light = new THREE.DirectionalLight(0xffffff, 2);
-    light.target = table.mesh;
-    light.castShadow = true;
-    light.shadow.mapSize.width = 2048;
-    light.shadow.mapSize.height = 2048;
-    light.shadow.radius = 3;
-
-    const lightHelper = new THREE.DirectionalLightHelper(light, 5);
-    scene.add(light);
-    scene.add(lightHelper);
-    */
+   
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     const tweenGroup = new TWEEN.Group();
