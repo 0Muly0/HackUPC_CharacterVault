@@ -99,14 +99,23 @@ export class Canvas implements AfterViewInit {
     scene.add(table.mesh);
 
     let d6: any = {}
-    gltf = await loader.loadAsync('/models/d6.glb');
+    gltf = await loader.loadAsync('/models/d12.glb');
     d6.mesh = gltf.scene;
-    this.createPhysics(d6);
     scene.add(d6.mesh);
-
-    d6.mesh.scale.setScalar(0.1);
-    d6.mesh.position.y = 2;
-
+    this.createPhysics(d6);
+    d6.faces = [];
+    d6.mesh.traverse((child: any) => {
+      if (child.name.startsWith('face')){
+        d6.faces.push(child);
+        console.log(child.name);
+      }
+    })
+    
+    d6.mesh.scale.setScalar(0.3);
+    d6.body.setTranslation({ x: 0, y: 1, z: 1 }, true);
+    d6.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
+    d6.body.setAngvel({ x: Math.random() * 3, y: Math.random() * 2, z: Math.random() * -3 }, true);
+    
     // Lights
     const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -161,6 +170,9 @@ export class Canvas implements AfterViewInit {
 
             const rot: any = d6.body.rotation();
             d6.mesh.quaternion.set(rot.x, rot.y, rot.z, rot.w);
+            
+            if (d6.body.isSleeping())
+              console.log(this.getTopFace(d6));
         }
       }
 
@@ -169,7 +181,7 @@ export class Canvas implements AfterViewInit {
 
   }
 
-  getConvexVerts(mesh: any){
+  private getConvexVerts(mesh: any){
       const verts: any[] = [];
 
       mesh.traverse((child: any) => {
@@ -187,7 +199,7 @@ export class Canvas implements AfterViewInit {
       return new Float32Array(verts);
   }
 
-  getTrimeshVerts(mesh: any){
+  private getTrimeshVerts(mesh: any){
       const verts: any[] = [];
       const indices: any[] = [];
       let indexOffset = 0;
@@ -217,7 +229,7 @@ export class Canvas implements AfterViewInit {
       return {verts: new Float32Array(verts), indices: new Uint32Array(indices)};
   }
 
-  createPhysics(modelObject: any, rigid = false){
+  private createPhysics(modelObject: any, rigid = false){
       modelObject.mesh.updateWorldMatrix(true, true);
 
       let body: any;
@@ -235,6 +247,26 @@ export class Canvas implements AfterViewInit {
     }
   private calcOverlayArea(): void {
 
+  }
+
+  private getTopFace(die: any){
+    let bestDot = -Infinity;
+    let bestFace = -1;
+    const worldUp = new THREE.Vector3(0,1,0);
+
+    die.faces.forEach((arrow: any) => {
+      const dir = new THREE.Vector3(0, 1, 0);
+      dir.applyQuaternion(arrow.getWorldQuaternion(new THREE.Quaternion()));
+
+      const dot = dir.dot(worldUp);
+      if (dot > bestDot){
+        bestDot = dot;
+        console.log("calculating: " + arrow.name.slice(-1));
+        bestFace = parseInt(arrow.name.slice(-1));
+      }
+
+    });
+    return bestFace;
   }
 
   private addOnClickEvent(sheet: any) {
