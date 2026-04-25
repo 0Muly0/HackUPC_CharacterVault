@@ -4,7 +4,7 @@ import { Canvas } from "./canvas/canvas";
 
 @Component({
   selector: 'app-root',
-  imports: [Canvas],
+  imports: [Canvas, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
