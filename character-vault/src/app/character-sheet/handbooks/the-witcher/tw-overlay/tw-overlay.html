@@ -1,0 +1,103 @@
+<div id="overlay">
+    <div class="nav">
+        <button (click)="toggleLock()">
+            {{ this.infoForm.disabled ? 'Unlock' : 'Lock' }}
+        </button>
+
+        @for(bm of bookmarks; track bm.id) {
+            <a (click)="changeActiveView(bm.id)">{{bm.label}}</a>
+        }
+    </div>
+
+    @switch (activeView()) {
+        @case ('info') {
+            <form class="info-form" [formGroup]="infoForm">
+                <div class="img">
+                    <img [src]="character.img">
+                </div>
+
+                <div class="name input-group">
+                    <input type="text" placeholder=" " formControlName="name">
+                    <label>Name</label>
+                </div>
+
+                <div class="age input-group">
+                    <input type="number" placeholder=" " formControlName="age">
+                    <label>Age</label>
+                </div>
+                
+                <select class="sex input-select" formControlName="gender">
+                    <option value="M"> M </option>
+                    <option value="F"> F </option>
+                    <option value=""> Gender </option>
+                </select>
+
+                <div class="appearance input-group">
+                    <textarea placeholder=" " formControlName="appearance"></textarea>
+                    <label>Style & Appearance</label>
+                </div>
+
+                <div class="personality input-group">
+                    <textarea placeholder=" " formControlName="personality"></textarea>
+                    <label>Personality & Values</label>
+                </div>
+
+                <div class="life input-group">
+                    <textarea placeholder=" " formControlName="life"></textarea>
+                    <label>Life and Affections</label>
+                </div>
+
+                <div class="race">
+                    <div class="race-name">
+                        <span class="label"> Race: </span>
+                        <select class="input-select" formControlName="race">
+                            <option value="Witcher"> Witcher </option>
+                            <option value="Human"> Human </option>
+                            <option value="Elf"> Elf </option>
+                            <option value="Dwarf"> Dwarf </option>
+                        </select>
+                    </div>
+
+                    <div class="description">
+                        {{getRaceDescription()}}
+                    </div>
+
+                    <div class="perks">
+                        @for(perk of getRacePerks(); track perk) {
+                            <div class="perk">
+                                <span>
+                                    {{perk.label}}
+                                </span>
+
+                                <div>
+                                    {{perk.description}}
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </form>
+        }
+
+        @case('stsk') {
+            <div class="stats-skills">
+                <form class="stats-form">
+                    <!-- STATS -->
+                    stats
+                </form>
+
+                <form class="skills-form">
+                    <!-- SKILLS -->
+                    skills
+                </form>
+            </div>
+        }
+
+        @case('prof') {
+            <form>
+                Profession
+            </form>
+        }
+    }
+
+</div>

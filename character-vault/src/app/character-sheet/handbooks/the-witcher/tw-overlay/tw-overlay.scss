@@ -1,0 +1,206 @@
+#overlay {
+    width: 53%;
+    height: 100%;
+
+    position: absolute;
+    top: 0;
+    right: 2%;
+        
+    color: white;
+
+    padding: 5px;
+
+    .nav {
+        height: 6%;
+
+        display: flex;
+        flex-direction: row;
+        justify-content: start;
+        align-items: center;
+        gap: 10px;
+
+        button {
+            width: fit-content;
+            height: 30px;
+        }
+
+        a {
+            padding: 5.5px;
+            background: #C44D58;
+        }
+    }
+
+    .info-form {
+        height: 93%;
+        width: 100%;
+        margin-top: 5px;
+
+        display: grid;
+        gap: 5px;
+        grid-template-columns: 30% auto 90px 80px;
+        grid-template-rows: repeat(12, auto);
+
+        .img {
+            background-color: white;
+            grid-column-start: 1;
+            grid-column-end: 2;
+            grid-row-start: 1;
+            grid-row-end: 4;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+            img {
+                width: 100%;
+            }
+        }
+
+        .name {
+            grid-column-start: 2;
+            grid-column-end: 2;
+            grid-row-start: 1;
+            grid-row-end: 2;
+
+            input {
+                overflow-x: auto;
+            }
+        }
+
+        .age {
+            grid-column-start: 3;
+            grid-column-end: 4;
+            grid-row-start: 1;
+            grid-row-end: 2;
+        }
+
+        .sex {
+            grid-column-start: 4;
+            grid-column-end: 5;
+            grid-row-start: 1;
+            grid-row-end: 2;
+        }
+
+        .appearance {
+            grid-column-start: 2;
+            grid-column-end: 5;
+            grid-row-start: 2;
+            grid-row-end: 3;
+
+            textarea {
+                overflow-y: auto;
+            }
+        }
+
+        .personality {
+            grid-column-start: 2;
+            grid-column-end: 5;
+            grid-row-start: 3;
+            grid-row-end: 4;
+
+            textarea {
+                overflow-y: auto;
+            }
+        }
+
+        .life {
+            grid-column-start: 1;
+            grid-column-end: 5;
+            grid-row-start: 4;
+            grid-row-end: 7;
+
+            textarea {
+                overflow-y: auto;
+            }
+        }
+
+        .race {
+            padding: 5px;
+
+            grid-column-start: 1;
+            grid-column-end: 5;
+            grid-row-start: 7;
+            grid-row-end: 13;
+
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: start;
+            gap: 15px;
+
+            color: black;
+            background-color: white;
+            border: 0.1rem solid gray;
+            border-radius: 15px;
+
+            .race-name {
+                width: 50%;
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 5px;
+                overflow-y: auto;
+
+                color: black;
+
+                .label {
+                    font-weight: 600;
+                }
+
+                select {
+                    height: 40px;
+                }
+            }
+
+            .description {
+                margin-top: 5px;
+            }
+
+            .perks {
+                width: 100%;
+                height: 50%;
+
+                display: flex;
+                flex-direction: row;
+                justify-content: flex-start;
+                align-items: center;
+                gap: 10px;
+
+                overflow-y: scroll;
+
+                .perk {
+                    height: 100%;
+                    min-width: 200px;
+                    padding: 5px;
+                    border: 0.1rem solid gray;
+                    border-radius: 15px;
+
+                    span {
+                        font-weight: 600;
+                    }
+                }
+            }
+        }
+    }
+
+    .stats-skills {
+        height: 93%;
+        width: 100%;
+        margin-top: 5px;
+
+        display: flex;
+        flex-direction: row;
+        
+        .stats-form {
+            height: 100%;
+            width: 40%;
+            background-color: wheat;
+        }
+
+        .skills-form {
+            height: 100%;
+            width: 60%;
+            background-color: green;
+        }
+    }
+}
