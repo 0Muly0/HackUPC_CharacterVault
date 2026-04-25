@@ -89,7 +89,7 @@
                         @for(stat of baseStatsArray; track stat) {
                             <div class="stat">
                                 {{stat[0]}}:
-                                <button>1d10 + {{stat[1]}}</button> 
+                                <button (click)="diceService.rollDice('1d10+'+stat[1], 'world')">1d10 + {{stat[1]}}</button> 
                             </div>
                         }   
                     </form>

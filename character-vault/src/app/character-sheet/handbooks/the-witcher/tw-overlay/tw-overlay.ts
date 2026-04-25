@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject } from '@angular/core';
 import { ChWitcher } from '../ch_witcher.model';
 import { geralt } from '../ch_witcher.premade';
 import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -7,6 +7,7 @@ import { Perk } from '../models/race.model';
 import { BASE_STATS } from '../config/stats.config';
 import { BASE_SKILLS } from '../config/skills.config';
 import { CharacterService } from '../../../character-service';
+import { Dice } from '../../../../dice/dice'
 
 @Component({
   selector: 'app-tw-overlay',
@@ -36,6 +37,7 @@ export class TwOverlay {
   public baseStatsArray: [string, number][] = [];
   public derivStatsArray: [string, number][] = [];  
   public baseSkillsArray: any[] = [];
+  public diceService = inject(Dice);
 
   public infoForm = new FormGroup({
     name: new FormControl('', Validators.required),

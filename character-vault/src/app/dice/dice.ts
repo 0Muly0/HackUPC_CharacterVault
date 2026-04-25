@@ -4,18 +4,25 @@ import RAPIER from '@dimforge/rapier3d-compat';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Subject } from 'rxjs';
 
-// type dice = {
-//   id: number;
-//   body: RAPIER.RigidBody;
-//   mesh: THREE.Mesh;
-//   done: boolean;
-//   result?: number;
-// };
+type DiceContext = {
+  diceArray: number[];
+  camera: THREE.PerspectiveCamera;
+  loader: GLTFLoader;
+  scene: THREE.Scene;
+  world: RAPIER.World; 
+}
+
 
 @Injectable({
   providedIn: 'root',
 })
 export class Dice {
+
+  private contexts = new Map<string, DiceContext>();
+
+  registerContext(contextId: string, diceArray: number[], camera: THREE.PerspectiveCamera, loader: GLTFLoader, scene: THREE.Scene, world: RAPIER.World) {
+    this.contexts.set(contextId, { diceArray, camera, loader, scene, world });
+  }
 
   private getConvexVerts(mesh: any){
       const verts: any[] = [];
@@ -53,7 +60,9 @@ export class Dice {
   private totalDices = 0;
   private patternMatch: any;
 
-  async rollDice(formula: string, diceArray: any[], camera: THREE.PerspectiveCamera, loader: GLTFLoader, scene: THREE.Scene, world: RAPIER.World){
+  async rollDice(formula: string, contextId: string){
+    const context = this.contexts.get(contextId);
+    if (!context) throw new Error(`Context ${contextId} not registered`);
 
     this.patternMatch = formula.match(/^(?<number>[0-4])d(?<dice>4|6|8|10|12|20|100)(?<op>[\+\-\*\/]\d+)?$/mi);
 
@@ -65,12 +74,12 @@ export class Dice {
       dice.id = i;
 
       let diceType = this.patternMatch.groups['dice'];
-      let gltf = await loader.loadAsync('/models/d'+diceType+'.glb');
+      let gltf = await context.loader.loadAsync('/models/d'+diceType+'.glb');
       let arrowLocation = (diceType == '4') ? 'vert' : 'face';
       console.log("Lancio di " + this.patternMatch.groups['number'] + "d" + this.patternMatch.groups['dice']);
   
       dice.mesh = gltf.scene;
-      scene.add(dice.mesh);
+      context.scene.add(dice.mesh);
       dice.faces = [];
       dice.mesh.traverse((child: any) => {
         if (child.name.startsWith(arrowLocation)){
@@ -82,18 +91,18 @@ export class Dice {
           // console.log("COLLIDER: " + child.name);
         }
       });
-      this.createPhysics(dice, world);
+      this.createPhysics(dice, context.world);
       
-      dice.mesh.scale.setScalar(0.3);
-      dice.body.setTranslation({ x: 0, y: 1, z: 1 }, true);
+      dice.mesh.scale.setScalar(0.1);
+      dice.body.setTranslation({ x: context.camera.position.x, y: context.camera.position.y + 1, z: context.camera.position.z }, true);
       dice.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
-      dice.body.setAngvel({ x: Math.random() * 3, y: Math.random() * 2, z: Math.random() * -3 }, true);
+      // dice.body.setAngvel({ x: Math.random() * 3, y: Math.random() * 2, z: Math.random() * -3 }, true);
       dice.done = false;
   
-      diceArray.push(dice);
+      context.diceArray.push(dice);
     }
     this.currentRoll.clear();
-    this.totalDices = diceArray.length;
+    this.totalDices = context.diceArray.length;
   }
 
   reportResult(result: {id: number, value: number}){
