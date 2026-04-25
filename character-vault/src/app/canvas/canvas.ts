@@ -53,7 +53,7 @@ export class Canvas implements AfterViewInit {
 
     // let controls: OrbitControls;
     // controls = new OrbitControls(camera, this.canvas.nativeElement);
-    const gui = new GUI();
+    // const gui = new GUI();
     
     let loader: GLTFLoader;
     loader = new GLTFLoader();
@@ -68,7 +68,6 @@ export class Canvas implements AfterViewInit {
         child.castShadow = true;
         child.receiveShadow = true;
         if (child.name == 'Sheet'){
-          console.log(child.name);
           sheet = child;
         }
       }
@@ -122,12 +121,6 @@ export class Canvas implements AfterViewInit {
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     const tweenGroup = new TWEEN.Group();
-    gui.add(camera.position, 'x').listen();
-    gui.add(camera.position, 'y').listen();
-    gui.add(camera.position, 'z').listen();
-    gui.add(camera.rotation, 'x').listen();
-    gui.add(camera.rotation, 'y').listen();
-    gui.add(camera.rotation, 'z').listen();
 
     this.canvas.nativeElement.addEventListener('click', (event) => {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -149,16 +142,22 @@ export class Canvas implements AfterViewInit {
               lz: camera.position.z + dir.z
             };
 
-            new TWEEN.Tween(startingCoords, tweenGroup).to({x: -0.52, y: 0.51, z: 0.73, lx: -0.52, ly: 0, lz:0.73}, 1000).onUpdate(() => {
+            new TWEEN.Tween(startingCoords, tweenGroup).to({x: -0.52, y: 0.51, z: 0.73, lx: -0.52, ly: 0, lz: 0.73}, 1000).onUpdate(() => {
                 camera.position.set(startingCoords.x, startingCoords.y, startingCoords.z);
                 camera.lookAt(startingCoords.lx, startingCoords.ly, startingCoords.lz);
             }).start();
         }
     });
+
+    window.addEventListener('resize', () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+    
     // Render Loop
     this.zone.runOutsideAngular(() => {
       function animate() {
-        //controls.update();
         composer.render();
         tweenGroup.update();
       }
