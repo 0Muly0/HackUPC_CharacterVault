@@ -20,7 +20,7 @@ import { CameraService } from './camera-service';
 export class Canvas implements AfterViewInit {
   @ViewChild('c') canvas!: ElementRef<HTMLCanvasElement>;
 
-  private diceService = inject(Dice);
+  // private diceService = inject(Dice);
   private diceArray: any[]= [];
   
   private raycaster: THREE.Raycaster = new THREE.Raycaster();
@@ -90,7 +90,14 @@ export class Canvas implements AfterViewInit {
     table.mesh.rotation.y = -Math.PI / 2;
     scene.add(table.mesh);
     
-    this.diceService.rollDice('2d4-1', this.diceArray, this.cameraS.camera, loader, scene, this.world);
+    this.diceService.init({
+      diceArray: this.diceArray, 
+      camera: this.camera, 
+      loader: loader,
+      scene: scene, 
+      world: this.world
+    });
+    this.diceService.rollDice('2d4-1');
     this.diceService.result$.subscribe(values => {
       console.log('All dice settled:', values);
     });
