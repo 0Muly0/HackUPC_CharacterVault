@@ -5,9 +5,10 @@ import { FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } 
 import { RACES } from '../config/races.config';
 import { Perk } from '../models/race.model';
 import { BASE_STATS } from '../config/stats.config';
-import { BASE_SKILLS } from '../config/skills.config';
+import { BASE_SKILLS, PROF_SKILLS } from '../config/skills.config';
 import { CharacterService } from '../../../character-service';
-import { Dice } from '../../../../dice/dice'
+import { PROFESSIONS } from '../config/professions.config';
+import { Dice } from '../../../../dice/dice';
 
 @Component({
   selector: 'app-tw-overlay',
@@ -37,6 +38,7 @@ export class TwOverlay {
   public baseStatsArray: [string, number][] = [];
   public derivStatsArray: [string, number][] = [];  
   public baseSkillsArray: any[] = [];
+  public profSkillsArray: any[] = [];
   public diceService = inject(Dice);
 
   public infoForm = new FormGroup({
@@ -49,10 +51,24 @@ export class TwOverlay {
     race: new FormControl('Human')
   });
 
+  public baseStatForm = new FormGroup({
+    // Dynamically populated
+  })
+
+  public baseSkillForm = new FormGroup({
+    // Dynamically populated
+  })
+
+  public profSkillForm = new FormGroup({
+    // Dynamically populated
+  })
+
   constructor(private charS: CharacterService) {
     this.character = geralt;
     this.initInfoForm();
-    this.initSkillStatForm();
+    this.initBaseStatForm();
+    this.initBaseSkillForm();
+    this.initProfSkillForm();
   }
 
   changeActiveView(newview: 'info'|'stsk'|'prof') {
@@ -60,11 +76,19 @@ export class TwOverlay {
   }
 
   toggleLock() {
-    if(this.infoForm.disabled) {
+    if(this.charS.lock()) {
       this.infoForm.enable();
+      this.baseStatForm.enable();
+      this.baseSkillForm.enable();
+      this.profSkillForm.enable();
+
       this.charS.lock.set(false);
     } else {
       this.infoForm.disable();
+      this.baseStatForm.disable();
+      this.baseSkillForm.disable();
+      this.profSkillForm.disable();
+
       this.charS.lock.set(true);
     }
   }
@@ -83,10 +107,17 @@ export class TwOverlay {
     }
   }
 
-  private initSkillStatForm() {
+  private initBaseStatForm() {
+    this.baseStatsArray = Object.entries(this.character.baseStatSet);
+    this.derivStatsArray = Object.entries(this.character.derivStatSet);
+
+    this.baseStatsArray.forEach(([statKey, statLvl]) => {
+      this.baseStatForm.addControl(statKey, new FormControl(statLvl, Validators.required))
+    })
+  }
+
+  private initBaseSkillForm() {
     if(this.character) {
-      this.baseStatsArray = Object.entries(this.character.baseStatSet);
-      this.derivStatsArray = Object.entries(this.character.derivStatSet);
 
       let skillsByStat = [];
       // For each stat
@@ -110,6 +141,8 @@ export class TwOverlay {
               description: abilitydata.description,
               weight: abilitydata.weight
             })
+
+            this.baseSkillForm.addControl(skillKey, new FormControl(skillLvl, Validators.required));
           }
         })
 
@@ -123,6 +156,34 @@ export class TwOverlay {
         }
       }
       this.baseSkillsArray = skillsByStat;
+    }
+  }
+
+  private initProfSkillForm() {
+    const profess = this.character.profession;
+
+    if(profess) {
+      this.profSkillForm.addControl('profession', new FormControl(profess, Validators.required));
+
+      const skillKeys = PROFESSIONS[profess].skillset;
+      skillKeys.forEach((profSkillKey) => {
+        const profSkillLvl = this.character.profSkillSet ? this.character.profSkillSet[profSkillKey as keyof typeof PROF_SKILLS] : 0;
+        this.profSkillForm.addControl(profSkillKey, new FormControl(profSkillLvl, Validators.required));
+
+        let statLvl = 0;
+        const stat = PROF_SKILLS[profSkillKey as keyof typeof PROF_SKILLS].stat;
+        if(stat) {
+          statLvl = this.character.baseStatSet[stat];
+        }
+
+        this.profSkillsArray.push({
+          profKey: profSkillKey,
+          profLvl: profSkillLvl,
+          statLvl: statLvl,
+          ...PROF_SKILLS[profSkillKey]
+        })
+
+      })
     }
   }
 
@@ -144,5 +205,15 @@ export class TwOverlay {
 
   public getCharacterBaseStats() {
     return Object.entries(this.character.baseStatSet);
+  }
+
+  public getProfessions() {
+    if(this.character.race == 'Witcher') {
+      return Object.entries(PROFESSIONS).filter(([key]) => key == 'Witcher')
+    } else if (this.character.race == 'Dwarf') {
+      return Object.entries(PROFESSIONS).filter(([key]) => key != 'Witcher' && key != 'Mage')
+    } else {
+      return Object.entries(PROFESSIONS).filter(([key]) => key != 'Witcher')
+    }
   }
 }

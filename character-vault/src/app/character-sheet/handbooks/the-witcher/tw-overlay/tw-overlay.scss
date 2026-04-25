@@ -326,4 +326,59 @@
 
         }
     }
+
+    .profession-form {
+        height: 93%;
+        width: 100%;
+
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+
+        .input-select {
+            height: 8%;
+        }
+
+        .prof-skills {
+            height: 92%;
+            background-color: white;
+            overflow-y: auto;
+            
+            border: 0.1rem solid gray;
+            border-radius: 15px;
+
+            .box {
+                padding: 10px;
+
+                .title {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 10px;
+
+                    h3 {
+                        width: fit-content;
+                        color:#C44D58;
+                    }
+
+                    .roll {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        gap: 10px;
+
+                        .input-group {
+                            width: 80px;
+                        }
+
+                        button {
+                            height: 25px;
+                            width: 100px;
+                        }
+                    }
+                }
+            }
+        }
+    }
 }

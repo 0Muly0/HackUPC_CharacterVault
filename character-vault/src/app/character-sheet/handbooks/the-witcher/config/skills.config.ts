@@ -414,7 +414,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: 'INT',
         label: 'Witcher Training',
-        description: '',
+        description: 'When in a hostile environment or difficult terrain, a Witcher can lessen the penalties by half their Witcher Training value (minimum 1). Witcher Training can also be used in any situation that you would normally use Monster Lore for.',
         weight: 1,
         predecessor: null,
         successor: ['Mediation', 'IronStomach', 'ParryArrows']
@@ -423,7 +423,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: null,
         label: 'Meditation',
-        description: '',
+        description: 'A Witcher can enter a medita tive trance which grants all the benefits of sleeping but allows them to remain vigilant. While meditating a Witcher is con sidered awake for the purpose of noticing anything within double their Meditation value in meters.',
         weight: 1,
         predecessor: 'WitcherTraining',
         successor: ['MagicalSource']
@@ -432,7 +432,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: null,
         label: 'Magical Source',
-        description: '',
+        description: 'As a Witcher uses signs more oft en their body becomes more used to the effort. For every 2 points a Witcher has in Magical Source they gain 1 points of Vigor threshold. When this ability reaches level 10, your maximum Vigor threshold becomes 7. This skill can be trained like other skills.',
         weight: 1,
         predecessor: 'Meditation',
         successor: ['Heliotrope']
@@ -441,7 +441,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: 'WILL',
         label: 'Heliotrope',
-        description: '',
+        description: 'When a Witcher is targeted by a spell, invocation, or hex they can roll Heliotrope to attempt to negate the eff ects. They must roll a Heliotrope roll that equals or beats the opponent’s roll and expend an amount of Stamina equal to half the Stamina spent to cast the magic.',
         weight: 1,
         predecessor: 'MagicalSource',
         successor: []
@@ -450,7 +450,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: null,
         label: 'Iron Stomach',
-        description: '',
+        description: 'After decades of drinking toxic witcher potions, witcher bodies adapt to the toxins. A witcher can endure 5% more toxicity from drinking potions and decoctions per 2 points they spend on Iron Stomach. Th is skill can be trained like other skills. At level 10, a witcher\'s maximum toxicity is 150%.',
         weight: 1,
         predecessor: 'WitcherTraining',
         successor: ['Frenzy']
@@ -459,7 +459,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: null,
         label: 'Frenzy',
-        description: '',
+        description: 'Frenzy When poisoned, a witcher goes into a frenzy and deals an extra 1 melee damage per level in Frenzy. While in a Frenzy, your single goal is to get to a place of safety or kill the target that poisoned you. When the poison wears off , the Frenzy ends. You can attempt to end Frenzy early with a DC:15 Endurance roll.',
         weight: 1,
         predecessor: 'IronStomach',
         successor: ['Transmutation']
@@ -468,7 +468,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: 'BODY',
         label: 'Transmutation',
-        description: '',
+        description: 'When taking decoctions a Witcher can roll Transmutation at DC:18. A success allows their body to assimilate slightly more of the mutagen than usual and gain a bonus based on which decoction they take. Th e decoction lasts half as long as it normally would. Th e extra mutations are too subtle to spot.',
         weight: 1,
         predecessor: 'Frenzy',
         successor: []
@@ -477,7 +477,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: 'DEX',
         label: 'Parry Arrows',
-        description: '',
+        description: 'A Witcher can roll Parry Arrows at a -3 to deflect physical projectiles. When parrying, the Witcher can choose a target within 10m. That target must take a defense action against the Witcher\'s Parry Arrows roll or be Staggered by the flying projectile.',
         weight: 1,
         predecessor: 'WitcherTraining',
         successor: ['QuickStrike']
@@ -486,7 +486,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: 'REF',
         label: 'Quick Strike',
-        description: '',
+        description: 'After a Witcher takes their turn they can spend 5 STA and make a Quick Strike roll at a DC equal to their opponent\'s REFx3. On success, they make another single strike in that round. Th is attack must be made against the opponent they rolled against, but can include disarms, trips, and other attacks.',
         weight: 1,
         predecessor: 'ParryArrows',
         successor: ['Whirl']
@@ -495,7 +495,7 @@ export const PROF_SKILLS = {
         profession: 'Witcher',
         stat: 'REF',
         label: 'Whirl',
-        description: '',
+        description: 'By spending 5 STA per round, a witcher can enter a Whirl, where the witcher makes one attack against everyone within sword range each turn, with their Whirl roll acting as the attack roll. Th e witcher can only maintain this Whirl, dodge, and move 2m each round. Doing anything else or being hit halts the Whirl.',
         weight: 1,
         predecessor: 'QuickStrike',
         successor: []

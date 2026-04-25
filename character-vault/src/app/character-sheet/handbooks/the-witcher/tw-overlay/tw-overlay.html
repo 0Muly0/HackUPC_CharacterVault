@@ -154,8 +154,41 @@
         }
 
         @case('prof') {
-            <form>
-                Profession
+            <form class="profession-form" [formGroup]="profSkillForm">
+                <select class="input-select" formControlName="profession">
+                    @for(profess of getProfessions(); track profess[0]) {
+                        <option [value]="profess[0]"> {{profess[1].label}} </option>
+                    }
+                </select>
+
+                <div class="prof-skills">
+                    @for(profSkill of profSkillsArray; track profSkill.profKey) {
+                        <div class="box">
+                            <div class="title">
+                                <h3>
+                                    {{profSkill.label}} 
+                                    @if(profSkill.stat) {
+                                        {{ '(' + profSkill.stat + ')'}}
+                                    }
+                                </h3>
+
+                                <div class="roll">
+                                    @if(profSkill.stat) {
+                                        <button> 1d10 + {{profSkill.statLvl + profSkill.profLvl}} </button>
+                                    }
+
+                                    <div class="input-group">
+                                        <input type="number" [formControlName]="profSkill.profKey">
+                                    </div>
+                                </div>
+                                
+                            </div>
+                            <div>
+                                {{profSkill.description}}
+                            </div>
+                        </div>
+                    }
+                </div>
             </form>
         }
     }
