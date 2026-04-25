@@ -1,11 +1,20 @@
 #notes {
     width: 32%;
     height: 77%;
+    padding: 10px;
 
     position: absolute;
     top: 22%;
     right: 56%;
 
-    background-color: blue;
+    background-color: rgb(184, 153, 120);
     color: white;
+
+    .input-group {
+        height: 80%;
+
+        textarea {
+            height: 100%;
+        }
+    }
 }

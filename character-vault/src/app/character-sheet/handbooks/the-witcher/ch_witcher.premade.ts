@@ -102,6 +102,7 @@ const geraltDef: ChWitcherDef = {
         Whirl: 8
     },
     id: "",
-    name: "Geralt of Rivia"
+    name: "Geralt of Rivia",
+    notes: "In yesterday session I was finally able to kill that awful Griffin that was terrorizing the village. \nLuckily no one got hurt. \n\n The pay for the job is good enough for me to reach Novigrad, where I will finally find some more Contracts."
 }
 export const geralt: ChWitcher = new ChWitcher(geraltDef);

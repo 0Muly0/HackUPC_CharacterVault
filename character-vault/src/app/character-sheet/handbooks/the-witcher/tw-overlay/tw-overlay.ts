@@ -6,6 +6,7 @@ import { RACES } from '../config/races.config';
 import { Perk } from '../models/race.model';
 import { BASE_STATS } from '../config/stats.config';
 import { BASE_SKILLS } from '../config/skills.config';
+import { CharacterService } from '../../../character-service';
 
 @Component({
   selector: 'app-tw-overlay',
@@ -46,7 +47,7 @@ export class TwOverlay {
     race: new FormControl('Human')
   });
 
-  constructor() {
+  constructor(private charS: CharacterService) {
     this.character = geralt;
     this.initInfoForm();
     this.initSkillStatForm();
@@ -57,9 +58,13 @@ export class TwOverlay {
   }
 
   toggleLock() {
-    this.infoForm.disabled 
-      ? this.infoForm.enable()
-      : this.infoForm.disable()
+    if(this.infoForm.disabled) {
+      this.infoForm.enable();
+      this.charS.lock.set(false);
+    } else {
+      this.infoForm.disable();
+      this.charS.lock.set(true);
+    }
   }
 
   private initInfoForm() {

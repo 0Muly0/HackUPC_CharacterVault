@@ -13,6 +13,7 @@ import { Character } from "../character.model";
  */
 export interface ChWitcherDef {
     id: string,
+    notes: string,
     img: string,
     name: string,
     gender: string,

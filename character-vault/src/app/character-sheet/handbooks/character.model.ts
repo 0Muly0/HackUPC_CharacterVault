@@ -12,6 +12,7 @@ export class Character {
     
     public name: string = '';
     public img: string = '';
+    public notes: string = '';
 
     constructor(h: Handbook) {
         this.handbook = h;
