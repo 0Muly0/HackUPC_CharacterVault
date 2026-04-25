@@ -102,7 +102,11 @@ export class Canvas implements AfterViewInit {
     table.mesh.rotation.y = -Math.PI / 2;
     scene.add(table.mesh);
     
-    this.diceService.rollDice('2d4', this.diceArray, this.camera, loader, scene, this.world);
+    this.diceService.rollDice('2d4-1', this.diceArray, this.camera, loader, scene, this.world);
+    this.diceService.result$.subscribe(values => {
+      console.log('All dice settled:', values);
+    });
+    
     // Lights
     const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -163,8 +167,11 @@ export class Canvas implements AfterViewInit {
             const rot: any = dice.body.rotation();
             dice.mesh.quaternion.set(rot.x, rot.y, rot.z, rot.w);
             
-            if (dice.body.isSleeping())
-              console.log(this.getTopFace(dice));
+            if (dice.body.isSleeping() && !dice.done){
+              const result = this.getTopFace(dice);
+              this.diceService.reportResult({id: dice.id, value: result})
+              dice.done = true;
+            }
         }
       }
 
