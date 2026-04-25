@@ -99,17 +99,21 @@ export class Canvas implements AfterViewInit {
     scene.add(table.mesh);
 
     let d6: any = {}
-    gltf = await loader.loadAsync('/models/d12.glb');
+    gltf = await loader.loadAsync('/models/d4.glb');
     d6.mesh = gltf.scene;
     scene.add(d6.mesh);
-    this.createPhysics(d6);
     d6.faces = [];
     d6.mesh.traverse((child: any) => {
-      if (child.name.startsWith('face')){
+      if (child.name.startsWith('vertex')){
         d6.faces.push(child);
-        console.log(child.name);
+        //console.log(child.name);
+      } else if (child.name == 'collider'){
+        child.visible = false;
+        d6.collider = child;
+        console.log("COLLIDER: " + child.name);
       }
-    })
+    });
+    this.createPhysics(d6);
     
     d6.mesh.scale.setScalar(0.3);
     d6.body.setTranslation({ x: 0, y: 1, z: 1 }, true);
@@ -239,7 +243,8 @@ export class Canvas implements AfterViewInit {
           this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, indices), body);
       }
       else{
-          const verts = this.getConvexVerts(modelObject.mesh);
+          console.log(modelObject.collider.name);
+          const verts = this.getConvexVerts(modelObject.collider);
           body = this.world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0,3,0).setLinearDamping(0.6).setAngularDamping(0.6));
           this.world.createCollider(RAPIER.ColliderDesc.convexHull(verts), body);
       }    
@@ -261,7 +266,7 @@ export class Canvas implements AfterViewInit {
       const dot = dir.dot(worldUp);
       if (dot > bestDot){
         bestDot = dot;
-        console.log("calculating: " + arrow.name.slice(-1));
+        // console.log("calculating: " + arrow.name.slice(-1));
         bestFace = parseInt(arrow.name.slice(-1));
       }
 
