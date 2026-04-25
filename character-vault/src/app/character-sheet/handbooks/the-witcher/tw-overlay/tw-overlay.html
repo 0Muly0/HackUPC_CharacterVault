@@ -65,7 +65,7 @@
                     <div class="perks">
                         @for(perk of getRacePerks(); track perk) {
                             <div class="perk">
-                                <span>
+                                <span class="label">
                                     {{perk.label}}
                                 </span>
 
@@ -81,15 +81,75 @@
 
         @case('stsk') {
             <div class="stats-skills">
-                <form class="stats-form">
-                    <!-- STATS -->
-                    stats
-                </form>
 
-                <form class="skills-form">
-                    <!-- SKILLS -->
-                    skills
-                </form>
+                <div class="stats">
+                    <h3>Base Stats</h3>
+                    <form class="base-stats-form">
+                        <!-- BASE STATS -->
+                        @for(stat of baseStatsArray; track stat) {
+                            <div class="stat">
+                                {{stat[0]}}:
+                                <button>1d10 + {{stat[1]}}</button> 
+                            </div>
+                        }   
+                    </form>
+
+                    <hr/>
+
+                    <h3> Derived Stats </h3>
+                    <form class="derived-stats-form">
+                        <!-- DERIV STATS -->
+                        @for(stat of derivStatsArray; track stat) {
+                            @if(stat[0] == 'PUNCH' || stat[0] == 'KICK') {
+                                <div class="stat">
+                                    {{stat[0]}}:
+                                    <button>1d6 + {{stat[1]}}</button> 
+                                </div>
+                            } @else {
+                                <div class="stat">
+                                    <div>
+                                        {{stat[0]}}:
+                                    </div>
+                                    <div>
+                                        {{stat[1]}}
+                                    </div> 
+                                </div>
+                            }
+                        }   
+                    </form>
+                </div>
+
+                <div class="skills-by-stats">
+                    <form class="base-skills-form">
+                        <!-- SKILLS -->
+                        @for(stat of baseSkillsArray; track stat.statKey) {                       
+                            <div>
+                                <h3>
+                                    {{stat.label}}
+                                </h3>
+                                @for(skill of stat.abilities; track skill.skillKey) {
+                                    <div class="skill">
+                                        <div class="label"> 
+                                            {{skill.label}}
+                                        </div>
+                                        <div class="cell">
+                                            {{stat.statLvl}}
+                                        </div>
+                                        <div class="cell">
+                                            {{skill.skillLvl}}
+                                        </div>
+                                        <div class="cell">
+                                            0
+                                        </div>
+                                        <div class="cell">
+                                            <button> 1d10 + {{stat.statLvl + skill.skillLvl}} </button>
+                                        </div>
+                                    </div>   
+                                }
+                            </div>
+                        }
+                    </form>
+                </div>
             </div>
         }
 

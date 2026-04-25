@@ -1,8 +1,17 @@
 * {
   box-sizing: border-box;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Eagle Lake", serif;
   font-weight: 400;
+  font-style: normal;
   font-size: 14px;
+}
+
+h2 {
+  font-size: 28px;
+}
+
+h3 {
+  font-size: 20px;
 }
 
 body {
@@ -34,8 +43,7 @@ select:disabled {
     top: 50%;
     left: 1rem;
 
-    color: black;
-    font-size: 16px;
+    color: #C44D58;
     font-weight: 600;
 
     transition: .5s;
@@ -71,9 +79,7 @@ select:disabled {
 
   textarea {
     resize: none;
-    padding-top: 20px;
-
-    font-size: 14px;
+    padding-top: 20px
   }
 }
 
