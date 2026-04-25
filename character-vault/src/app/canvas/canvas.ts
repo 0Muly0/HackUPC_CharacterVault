@@ -138,20 +138,27 @@ export class Canvas implements AfterViewInit {
         
         if (intersects.length > 0) {
             console.log("SLEC");
-            const startingCoords = {x: camera.position.x, y: camera.position.y, z: camera.position.z, t: 0};
-            const startQuat = camera.quaternion.clone();
-            const endQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.57, 6.82, 0.06));
+            let dir = new THREE.Vector3();
+            camera.getWorldDirection(dir);
+            const startingCoords = {
+              x: camera.position.x, 
+              y: camera.position.y, 
+              z: camera.position.z, 
+              lx: camera.position.x + dir.x, 
+              ly: camera.position.y + dir.y, 
+              lz: camera.position.z + dir.z
+            };
 
-            new TWEEN.Tween(startingCoords, tweenGroup).to({x: -0.52, y: 0.51, z: 0.73, t:1}, 1000).onUpdate(() => {
+            new TWEEN.Tween(startingCoords, tweenGroup).to({x: -0.52, y: 0.51, z: 0.73, lx: -0.52, ly: 0, lz:0.73}, 1000).onUpdate(() => {
                 camera.position.set(startingCoords.x, startingCoords.y, startingCoords.z);
-                camera.quaternion.copy(startQuat).slerp(endQuat, startingCoords.t);
+                camera.lookAt(startingCoords.lx, startingCoords.ly, startingCoords.lz);
             }).start();
         }
     });
     // Render Loop
     this.zone.runOutsideAngular(() => {
       function animate() {
-        controls.update();
+        //controls.update();
         composer.render();
         tweenGroup.update();
       }
