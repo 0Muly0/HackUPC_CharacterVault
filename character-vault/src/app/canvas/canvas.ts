@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, NgZone, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, NgZone, ViewChild, inject } from '@angular/core';
 
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
@@ -7,6 +7,7 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { FXAAPass } from 'three/addons/postprocessing/FXAAPass.js';
 import RAPIER from '@dimforge/rapier3d-compat';
+import { Dice } from  '../dice/dice';
 
 import * as TWEEN from '@tweenjs/tween.js';
 import GUI from 'lil-gui';
@@ -15,19 +16,22 @@ import { Router } from '@angular/router';
 @Component({
   selector: 'app-canvas',
   imports: [],
-templateUrl: './canvas.html',
+  templateUrl: './canvas.html',
   styleUrl: './canvas.scss',
 })
 export class Canvas implements AfterViewInit {
   @ViewChild('c') canvas!: ElementRef<HTMLCanvasElement>;
 
-  world: any;
-
+  private diceService = inject(Dice);
+  private diceArray: any[]= [];
+  
   private camera!: THREE.PerspectiveCamera;
-
+  
   private raycaster: THREE.Raycaster = new THREE.Raycaster();
   private mouse: THREE.Vector2 = new THREE.Vector2();
   private tweenGroup: TWEEN.Group = new TWEEN.Group();
+  private world: any;
+  private gui = new GUI();
 
   constructor(
     private zone: NgZone,
@@ -85,7 +89,7 @@ export class Canvas implements AfterViewInit {
     let sheet: any;
     let gltf = await loader.loadAsync('/models/table.glb');
     table.mesh = gltf.scene;
-    this.createPhysics(table, true);
+    this.rigidPhysics(table, true);
     table.mesh.traverse((child: any) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -97,29 +101,8 @@ export class Canvas implements AfterViewInit {
     });
     table.mesh.rotation.y = -Math.PI / 2;
     scene.add(table.mesh);
-
-    let d6: any = {}
-    gltf = await loader.loadAsync('/models/d4.glb');
-    d6.mesh = gltf.scene;
-    scene.add(d6.mesh);
-    d6.faces = [];
-    d6.mesh.traverse((child: any) => {
-      if (child.name.startsWith('vertex')){
-        d6.faces.push(child);
-        //console.log(child.name);
-      } else if (child.name == 'collider'){
-        child.visible = false;
-        d6.collider = child;
-        console.log("COLLIDER: " + child.name);
-      }
-    });
-    this.createPhysics(d6);
     
-    d6.mesh.scale.setScalar(0.3);
-    d6.body.setTranslation({ x: 0, y: 1, z: 1 }, true);
-    d6.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
-    d6.body.setAngvel({ x: Math.random() * 3, y: Math.random() * 2, z: Math.random() * -3 }, true);
-    
+    this.diceService.rollDice('2d4', this.diceArray, this.camera, loader, scene, this.world);
     // Lights
     const bloomPass = new UnrealBloomPass(
     new THREE.Vector2(window.innerWidth, window.innerHeight),
@@ -150,6 +133,11 @@ export class Canvas implements AfterViewInit {
     bulbLightWhite.shadow.normalBias = 0.08;
     scene.add(bulbLightWhite);
 
+    this.gui.add(bulbLightWhite.position, 'x');
+    this.gui.add(bulbLightWhite.position, 'y');
+    this.gui.add(bulbLightWhite.position, 'z');
+    const helper = new THREE.PointLightHelper(bulbLightWhite, 1);
+    scene.add(helper);
     // On click
     this.addOnClickEvent(sheet)
 
@@ -168,39 +156,21 @@ export class Canvas implements AfterViewInit {
 
         this.world.step();
 
-        if (d6){
-            const pos: any = d6.body.translation();
-            d6.mesh.position.set(pos.x, pos.y, pos.z);
+        for (let dice of this.diceArray){
+            const pos: any = dice.body.translation();
+            dice.mesh.position.set(pos.x, pos.y, pos.z);
 
-            const rot: any = d6.body.rotation();
-            d6.mesh.quaternion.set(rot.x, rot.y, rot.z, rot.w);
+            const rot: any = dice.body.rotation();
+            dice.mesh.quaternion.set(rot.x, rot.y, rot.z, rot.w);
             
-            if (d6.body.isSleeping())
-              console.log(this.getTopFace(d6));
+            if (dice.body.isSleeping())
+              console.log(this.getTopFace(dice));
         }
       }
 
       renderer.setAnimationLoop(animate);
     });
 
-  }
-
-  private getConvexVerts(mesh: any){
-      const verts: any[] = [];
-
-      mesh.traverse((child: any) => {
-          if (child.isMesh){
-              const pos = child.geometry.attributes.position;
-      
-              for (let i = 0; i < pos.count; i++){
-                  const v = new THREE.Vector3().fromBufferAttribute(pos, i);
-                  v.applyMatrix4(child.matrixWorld);
-                  verts.push(v.x, v.y, v.z);
-              }
-          }
-      });
-
-      return new Float32Array(verts);
   }
 
   private getTrimeshVerts(mesh: any){
@@ -233,23 +203,16 @@ export class Canvas implements AfterViewInit {
       return {verts: new Float32Array(verts), indices: new Uint32Array(indices)};
   }
 
-  private createPhysics(modelObject: any, rigid = false){
+  private rigidPhysics(modelObject: any, rigid = false){
       modelObject.mesh.updateWorldMatrix(true, true);
 
       let body: any;
-      if (rigid){
-          const {verts, indices} = this.getTrimeshVerts(modelObject.mesh);
-          body = this.world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
-          this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, indices), body);
-      }
-      else{
-          console.log(modelObject.collider.name);
-          const verts = this.getConvexVerts(modelObject.collider);
-          body = this.world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0,3,0).setLinearDamping(0.6).setAngularDamping(0.6));
-          this.world.createCollider(RAPIER.ColliderDesc.convexHull(verts), body);
-      }    
+      const {verts, indices} = this.getTrimeshVerts(modelObject.mesh);
+      body = this.world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
+      this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, indices), body);
       modelObject.body = body;
-    }
+  }
+
   private calcOverlayArea(): void {
 
   }
@@ -267,7 +230,7 @@ export class Canvas implements AfterViewInit {
       if (dot > bestDot){
         bestDot = dot;
         // console.log("calculating: " + arrow.name.slice(-1));
-        bestFace = parseInt(arrow.name.slice(-1));
+        bestFace = parseInt(arrow.name.slice(5));
       }
 
     });
