@@ -8,6 +8,9 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { FXAAPass } from 'three/addons/postprocessing/FXAAPass.js';
 
+import * as TWEEN from '@tweenjs/tween.js';
+import GUI from 'lil-gui';
+
 @Component({
   selector: 'app-canvas',
   imports: [],
@@ -48,20 +51,26 @@ export class Canvas implements AfterViewInit {
     composer.addPass(new RenderPass(scene, camera));
     composer.addPass(new FXAAPass());
 
-    let controls: OrbitControls;
-    controls = new OrbitControls(camera, this.canvas.nativeElement);
+    // let controls: OrbitControls;
+    // controls = new OrbitControls(camera, this.canvas.nativeElement);
+    const gui = new GUI();
     
     let loader: GLTFLoader;
     loader = new GLTFLoader();
 
     // Load custom asset
     let table: any = {}
+    let sheet: any;
     const gltf = await loader.loadAsync('/models/table.glb');
     table.mesh = gltf.scene;
     table.mesh.traverse((child: any) => {
       if (child.isMesh) {
         child.castShadow = true;
         child.receiveShadow = true;
+        if (child.name == 'Sheet'){
+          console.log(child.name);
+          sheet = child;
+        }
       }
     });
     table.mesh.rotation.y = -Math.PI / 2;
@@ -110,13 +119,41 @@ export class Canvas implements AfterViewInit {
     scene.add(light);
     scene.add(lightHelper);
     */
+    const raycaster = new THREE.Raycaster();
+    const mouse = new THREE.Vector2();
+    const tweenGroup = new TWEEN.Group();
+    gui.add(camera.position, 'x').listen();
+    gui.add(camera.position, 'y').listen();
+    gui.add(camera.position, 'z').listen();
+    gui.add(camera.rotation, 'x').listen();
+    gui.add(camera.rotation, 'y').listen();
+    gui.add(camera.rotation, 'z').listen();
 
+    this.canvas.nativeElement.addEventListener('click', (event) => {
+        mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObject(sheet, true);
+        
+        if (intersects.length > 0) {
+            console.log("SLEC");
+            const startingCoords = {x: camera.position.x, y: camera.position.y, z: camera.position.z, t: 0};
+            const startQuat = camera.quaternion.clone();
+            const endQuat = new THREE.Quaternion().setFromEuler(new THREE.Euler(-1.57, 6.82, 0.06));
+
+            new TWEEN.Tween(startingCoords, tweenGroup).to({x: -0.52, y: 0.51, z: 0.73, t:1}, 1000).onUpdate(() => {
+                camera.position.set(startingCoords.x, startingCoords.y, startingCoords.z);
+                camera.quaternion.copy(startQuat).slerp(endQuat, startingCoords.t);
+            }).start();
+        }
+    });
     // Render Loop
     this.zone.runOutsideAngular(() => {
       function animate() {
         controls.update();
         composer.render();
+        tweenGroup.update();
       }
 
       renderer.setAnimationLoop(animate);
