@@ -1,4 +1,6 @@
-<div id="char-sheet">
+<div id="char-sheet" [style.opacity]="opacityValue">
+    <button (click)="goToHome()"> Home </button>
+
     <app-notes></app-notes>
 
     <app-tw-overlay></app-tw-overlay>
