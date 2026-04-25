@@ -32,7 +32,6 @@ export class App {
   handlePopState(event: PopStateEvent) {
     // Extracts the past url
     event.state;
-    debugger
     const destination = this.currentPath;
 
     if(destination.includes('home')) {
