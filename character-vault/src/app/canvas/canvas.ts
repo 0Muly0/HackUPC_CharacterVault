@@ -51,14 +51,14 @@ export class Canvas implements AfterViewInit {
     renderer.toneMappingExposure = 1.2;
 
     this.camera = new THREE.PerspectiveCamera(40, iw / ih, 0.1, 1000);
-    //this.camera.position.y = 1.2;
-    //this.camera.position.z = 2.2;
-    //this.camera.rotation.x = -(25 * Math.PI) / 180;
-    this.camera.position.x = -0.5;
-    this.camera.position.y = 0.45;
-    this.camera.position.z = 0.70;
-    this.camera.rotation.z = 0.07;
-    this.camera.rotation.x = -Math.PI / 2;
+    this.camera.position.y = 1.2;
+    this.camera.position.z = 2.2;
+    this.camera.rotation.x = -(25 * Math.PI) / 180;
+    //this.camera.position.x = -0.5;
+    //this.camera.position.y = 0.45;
+    //this.camera.position.z = 0.70;
+    //this.camera.rotation.z = 0.07;
+    //this.camera.rotation.x = -Math.PI / 2;
 
     const composer = new EffectComposer(renderer);
     composer.setSize(iw, ih);
@@ -138,6 +138,10 @@ export class Canvas implements AfterViewInit {
 
   }
 
+  private calcOverlayArea(): void {
+
+  }
+
   private addOnClickEvent(sheet: any) {
     this.canvas.nativeElement.addEventListener('click', (event) => {
       /*      
@@ -198,6 +202,7 @@ export class Canvas implements AfterViewInit {
         this.camera.rotation.z = state.rotZ;
       })
       .onComplete(() => {
+        this.calcOverlayArea();
         this.router.navigate(['/character-sheet']);
       })
       .start();

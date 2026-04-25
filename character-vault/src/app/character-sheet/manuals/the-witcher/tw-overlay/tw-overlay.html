@@ -1,3 +1,70 @@
 <div id="overlay">
-    THE WITCHER
+    <div class="nav">
+        @for(bm of bookmarks; track bm.id) {
+            <a (click)="changeActiveView(bm.id)">{{bm.label}}</a>
+        }
+    </div>
+
+    @switch (activeView()) {
+        @case ('info') {
+            <form class="info-form">
+                <div class="img">
+                </div>
+
+                <div class="name input-group">
+                    <input type="text" placeholder=" ">
+                    <label>Name</label>
+                </div>
+
+                <div class="age input-group">
+                    <input type="number" placeholder=" ">
+                    <label>Age</label>
+                </div>
+                
+                <select class="sex input-select">
+                    <option value=""> Sex </option>
+                </select>
+
+                <div class="appearance input-group">
+                    <textarea placeholder=" "></textarea>
+                    <label>Style & Appearance</label>
+                </div>
+
+                <div class="personality input-group">
+                    <textarea placeholder=" "></textarea>
+                    <label>Personality & Values</label>
+                </div>
+
+                <div class="life input-group">
+                    <textarea placeholder=" "></textarea>
+                    <label>Life and Affections</label>
+                </div>
+
+                <div class="race">
+
+                </div>
+            </form>
+        }
+
+        @case('stsk') {
+            <div class="stats-skills">
+                <form class="stats-form">
+                    <!-- STATS -->
+                    stats
+                </form>
+
+                <form class="skills-form">
+                    <!-- SKILLS -->
+                    skills
+                </form>
+            </div>
+        }
+
+        @case('prof') {
+            <form>
+                Profession
+            </form>
+        }
+    }
+
 </div>
