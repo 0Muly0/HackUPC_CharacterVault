@@ -8,6 +8,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { FXAAPass } from 'three/addons/postprocessing/FXAAPass.js';
 import RAPIER from '@dimforge/rapier3d-compat';
 import { Dice } from  '../dice/dice';
+import { GUI } from 'lil-gui';
 
 import { CameraService } from './camera-service';
 
@@ -37,11 +38,11 @@ export class Canvas implements AfterViewInit {
     // Base viewport params
     const iw = window.innerWidth;
     const ih = window.innerHeight;
-
+    const gui = new GUI();
     // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x222222);
-
+    
     //Renderer
     const renderer = new THREE.WebGLRenderer({
       canvas: this.canvas.nativeElement, 
@@ -70,7 +71,7 @@ export class Canvas implements AfterViewInit {
     await RAPIER.init();
     this.world = new RAPIER.World({x: 0.0, y: -2.81, z: 0.0});
 
-    // Load custom asset
+    // Load table
     let table: any = {}
     let sheet: any;
     let gltf = await loader.loadAsync('/models/table.glb');
@@ -82,6 +83,8 @@ export class Canvas implements AfterViewInit {
         child.receiveShadow = true;
         if (child.name == 'Sheet'){
           sheet = child;
+        } else if (child.name == 'invisible'){
+           child.visible = false;
         }
       }
     });
@@ -127,9 +130,6 @@ export class Canvas implements AfterViewInit {
     bulbLightWhite.shadow.bias = -0.00005;
     bulbLightWhite.shadow.normalBias = 0.08;
     scene.add(bulbLightWhite);
-
-    const helper = new THREE.PointLightHelper(bulbLightWhite, 1);
-    scene.add(helper);
 
     // Resize
     window.addEventListener('resize', () => {
