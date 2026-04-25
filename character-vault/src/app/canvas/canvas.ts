@@ -23,7 +23,6 @@ export class Canvas implements AfterViewInit {
 
   world: any;
 
-  constructor(private zone: NgZone) {}
   private camera!: THREE.PerspectiveCamera;
 
   private raycaster: THREE.Raycaster = new THREE.Raycaster();
@@ -233,6 +232,7 @@ export class Canvas implements AfterViewInit {
           this.world.createCollider(RAPIER.ColliderDesc.convexHull(verts), body);
       }    
       modelObject.body = body;
+    }
   private calcOverlayArea(): void {
 
   }
