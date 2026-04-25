@@ -20,7 +20,7 @@ import { CameraService } from './camera-service';
 export class Canvas implements AfterViewInit {
   @ViewChild('c') canvas!: ElementRef<HTMLCanvasElement>;
 
-  private diceService = inject(Dice);
+  // private diceService = inject(Dice);
   private diceArray: any[]= [];
   
   private raycaster: THREE.Raycaster = new THREE.Raycaster();
@@ -29,7 +29,8 @@ export class Canvas implements AfterViewInit {
 
   constructor(
     private zone: NgZone,
-    private cameraS: CameraService
+    private cameraS: CameraService,
+    private diceService: Dice
   ) {}
 
   async ngAfterViewInit() {
@@ -90,7 +91,9 @@ export class Canvas implements AfterViewInit {
     table.mesh.rotation.y = -Math.PI / 2;
     scene.add(table.mesh);
     
-    this.diceService.rollDice('2d4-1', this.diceArray, this.cameraS.camera, loader, scene, this.world);
+    //Dice
+    this.diceService.registerContext('world', this.diceArray, this.cameraS.camera, loader, scene, this.world);
+    //this.diceService.rollDice('2d6+2', 'world');
     this.diceService.result$.subscribe(values => {
       console.log('All dice settled:', values);
     });
@@ -104,7 +107,7 @@ export class Canvas implements AfterViewInit {
     );
     composer.addPass(bloomPass);
 
-    const bulbLightOrange = new THREE.PointLight(0xdb4a11, 1, 100, 2);
+    const bulbLightOrange = new THREE.PointLight(0xf6bf88, 1, 100, 2);
     bulbLightOrange.castShadow = true;
     bulbLightOrange.power = 900;
     bulbLightOrange.position.y = 7;
@@ -217,6 +220,8 @@ export class Canvas implements AfterViewInit {
         bestDot = dot;
         // console.log("calculating: " + arrow.name.slice(-1));
         bestFace = parseInt(arrow.name.slice(5));
+        if (bestFace == 0)
+          bestFace = 10;
       }
 
     });
