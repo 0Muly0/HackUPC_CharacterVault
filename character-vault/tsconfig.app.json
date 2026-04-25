@@ -8,7 +8,7 @@
   },
   "include": [
     "src/**/*.ts"
-  ],
+, "src/app/character-sheet/handbooks/the-witcher/models"  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]
