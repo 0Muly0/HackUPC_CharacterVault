@@ -1,7 +1,12 @@
 import { AfterViewInit, Component, ElementRef, NgZone, ViewChild } from '@angular/core';
+
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { FXAAPass } from 'three/addons/postprocessing/FXAAPass.js';
 
 @Component({
   selector: 'app-canvas',
@@ -26,14 +31,22 @@ export class Canvas implements AfterViewInit {
       canvas: this.canvas.nativeElement, 
       antialias: true
     });
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(iw, ih);
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.2;
 
-    const camera = new THREE.PerspectiveCamera(50, iw / ih, 0.1, 1000);
-    camera.position.y = 3;
-    camera.position.z = 5;
+    const camera = new THREE.PerspectiveCamera(40, iw / ih, 0.1, 1000);
+    camera.position.y = 1.2;
+    camera.position.z = 2.2;
     camera.rotation.x = -(25 * Math.PI) / 180;
+
+    const composer = new EffectComposer(renderer);
+    composer.setSize(iw, ih);
+    composer.addPass(new RenderPass(scene, camera));
+    composer.addPass(new FXAAPass());
 
     let controls: OrbitControls;
     controls = new OrbitControls(camera, this.canvas.nativeElement);
@@ -45,25 +58,44 @@ export class Canvas implements AfterViewInit {
     let table: any = {}
     const gltf = await loader.loadAsync('/models/table.glb');
     table.mesh = gltf.scene;
-    table.mesh.receiveShadow = true;
-    table.mesh.castShadow = true;
+    table.mesh.traverse((child: any) => {
+      if (child.isMesh) {
+        child.castShadow = true;
+        child.receiveShadow = true;
+      }
+    });
     table.mesh.rotation.y = -Math.PI / 2;
 
     scene.add(table.mesh);
 
     // Lights
+    const bloomPass = new UnrealBloomPass(
+    new THREE.Vector2(window.innerWidth, window.innerHeight),
+      1.5,  // strength
+      0.4,  // radius
+      0.85  // threshold
+    );
+    composer.addPass(bloomPass);
 
     const bulbLightOrange = new THREE.PointLight(0xdb4a11, 1, 100, 2);
+    bulbLightOrange.castShadow = true;
     bulbLightOrange.power = 900;
     bulbLightOrange.position.y = 7;
     bulbLightOrange.position.z = 7;
+    bulbLightOrange.shadow.mapSize.set(2048, 2048);
+    bulbLightOrange.shadow.bias = -0.0001;
+    bulbLightOrange.shadow.normalBias = 0.05;
     scene.add(bulbLightOrange);
 
-    const bulbLightWhite = new THREE.PointLight(0xe8dd0b, 1, 100, 2);
+    const bulbLightWhite = new THREE.PointLight(0xeffffff, 1, 100, 2);
+    bulbLightWhite.castShadow = true;
     bulbLightWhite.power = 2000;
     bulbLightWhite.position.x = 4;
-    bulbLightWhite.position.y = 7;
+    bulbLightWhite.position.y = 10;
     bulbLightWhite.position.z = -7;
+    bulbLightWhite.shadow.mapSize.set(2048, 2048);
+    bulbLightWhite.shadow.bias = -0.00005;
+    bulbLightWhite.shadow.normalBias = 0.08;
     scene.add(bulbLightWhite);
 
     /*
@@ -83,7 +115,8 @@ export class Canvas implements AfterViewInit {
     // Render Loop
     this.zone.runOutsideAngular(() => {
       function animate() {
-        renderer.render(scene, camera);
+        controls.update();
+        composer.render();
       }
 
       renderer.setAnimationLoop(animate);
