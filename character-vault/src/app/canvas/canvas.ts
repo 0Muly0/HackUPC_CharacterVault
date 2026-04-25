@@ -6,6 +6,7 @@ import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { FXAAPass } from 'three/addons/postprocessing/FXAAPass.js';
+import RAPIER from '@dimforge/rapier3d-compat';
 
 import * as TWEEN from '@tweenjs/tween.js';
 import GUI from 'lil-gui';
@@ -19,6 +20,8 @@ templateUrl: './canvas.html',
 export class Canvas implements AfterViewInit {
   @ViewChild('c') canvas!: ElementRef<HTMLCanvasElement>;
 
+  world: any;
+
   constructor(private zone: NgZone) {}
 
   async ngAfterViewInit() {
@@ -26,9 +29,11 @@ export class Canvas implements AfterViewInit {
     const iw = window.innerWidth;
     const ih = window.innerHeight;
 
+    // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x222222);
 
+    //Renderer
     const renderer = new THREE.WebGLRenderer({
       canvas: this.canvas.nativeElement, 
       antialias: true
@@ -40,24 +45,33 @@ export class Canvas implements AfterViewInit {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
 
+    //Camera
     const camera = new THREE.PerspectiveCamera(40, iw / ih, 0.1, 1000);
     camera.position.y = 1.2;
     camera.position.z = 2.2;
     camera.rotation.x = -(25 * Math.PI) / 180;
 
+    //Composer
     const composer = new EffectComposer(renderer);
     composer.setSize(iw, ih);
     composer.addPass(new RenderPass(scene, camera));
     composer.addPass(new FXAAPass());
     
+    //Loader
     let loader: GLTFLoader;
     loader = new GLTFLoader();
+
+    //Rapier
+
+    await RAPIER.init();
+    this.world = new RAPIER.World({x: 0.0, y: -2.81, z: 0.0});
 
     // Load custom asset
     let table: any = {}
     let sheet: any;
-    const gltf = await loader.loadAsync('/models/table.glb');
+    let gltf = await loader.loadAsync('/models/table.glb');
     table.mesh = gltf.scene;
+    this.createPhysics(table, true);
     table.mesh.traverse((child: any) => {
       if (child.isMesh) {
         child.castShadow = true;
@@ -68,8 +82,16 @@ export class Canvas implements AfterViewInit {
       }
     });
     table.mesh.rotation.y = -Math.PI / 2;
-
     scene.add(table.mesh);
+
+    let d6: any = {}
+    gltf = await loader.loadAsync('/models/d6.glb');
+    d6.mesh = gltf.scene;
+    this.createPhysics(d6);
+    scene.add(d6.mesh);
+
+    d6.mesh.scale.setScalar(0.1);
+    d6.mesh.position.y = 2;
 
     // Lights
     const bloomPass = new UnrealBloomPass(
@@ -106,6 +128,7 @@ export class Canvas implements AfterViewInit {
     const mouse = new THREE.Vector2();
     const tweenGroup = new TWEEN.Group();
 
+    //Object selection
     this.canvas.nativeElement.addEventListener('click', (event) => {
         mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -133,6 +156,8 @@ export class Canvas implements AfterViewInit {
         }
     });
 
+
+    //Responsive
     window.addEventListener('resize', () => {
       camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
@@ -141,13 +166,88 @@ export class Canvas implements AfterViewInit {
     
     // Render Loop
     this.zone.runOutsideAngular(() => {
-      function animate() {
+      const animate = () => {
         composer.render();
         tweenGroup.update();
+
+        this.world.step();
+
+        if (d6){
+            const pos: any = d6.body.translation();
+            d6.mesh.position.set(pos.x, pos.y, pos.z);
+
+            const rot: any = d6.body.rotation();
+            d6.mesh.quaternion.set(rot.x, rot.y, rot.z, rot.w);
+        }
       }
 
       renderer.setAnimationLoop(animate);
     });
 
+  }
+
+  getConvexVerts(mesh: any){
+      const verts: any[] = [];
+
+      mesh.traverse((child: any) => {
+          if (child.isMesh){
+              const pos = child.geometry.attributes.position;
+      
+              for (let i = 0; i < pos.count; i++){
+                  const v = new THREE.Vector3().fromBufferAttribute(pos, i);
+                  v.applyMatrix4(child.matrixWorld);
+                  verts.push(v.x, v.y, v.z);
+              }
+          }
+      });
+
+      return new Float32Array(verts);
+  }
+
+  getTrimeshVerts(mesh: any){
+      const verts: any[] = [];
+      const indices: any[] = [];
+      let indexOffset = 0;
+
+      mesh.traverse((child: any) => {
+          if (child.isMesh){
+              const pos = child.geometry.attributes.position;
+              const idx = child.geometry.index;
+
+              for (let i = 0; i < pos.count; i++){
+                  const v = new THREE.Vector3().fromBufferAttribute(pos, i);
+                  v.applyMatrix4(child.matrixWorld);
+                  verts.push(v.x, v.y, v.z);
+              }
+
+              if (idx){
+                  for (let i = 0; i < idx.count; i++)
+                      indices.push(idx.array[i] + indexOffset);
+              } else{
+                  for (let i = 0; i < pos.count; i++)
+                      indices.push(i + indexOffset);
+              }
+              indexOffset += pos.count;
+          }
+      });
+
+      return {verts: new Float32Array(verts), indices: new Uint32Array(indices)};
+  }
+
+  createPhysics(modelObject: any, rigid = false){
+      modelObject.mesh.updateWorldMatrix(true, true);
+
+      let body: any;
+      if (rigid){
+          const {verts, indices} = this.getTrimeshVerts(modelObject.mesh);
+          body = this.world.createRigidBody(RAPIER.RigidBodyDesc.fixed());
+          this.world.createCollider(RAPIER.ColliderDesc.trimesh(verts, indices), body);
+      }
+      else{
+          const verts = this.getConvexVerts(modelObject.mesh);
+          body = this.world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0,3,0).setLinearDamping(0.6).setAngularDamping(0.6));
+          this.world.createCollider(RAPIER.ColliderDesc.convexHull(verts), body);
+      }    
+      modelObject.body = body;
   }
 }
