@@ -91,11 +91,11 @@ export class Dice {
       });
       this.createPhysics(dice, this.context.world);
       
-      dice.mesh.scale.setScalar(0.1);
+      dice.mesh.scale.setScalar(0.05);
       dice.body.setTranslation({
-        x: this.context.camera.position.x - 0.1,
-        y: this.context.camera.position.y,
-        z: this.context.camera.position.z
+        x: this.context.camera.position.x - 0.05,
+        y: this.context.camera.position.y + 0.5,
+        z: this.context.camera.position.z + 0.02
       }, true);
       dice.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
       // dice.body.setAngvel({ x: Math.random() * 3, y: Math.random() * 2, z: Math.random() * -3 }, true);

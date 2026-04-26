@@ -91,7 +91,7 @@ export class Canvas implements AfterViewInit {
     // On click
     this.addOnClickEvent(sheet)
 
-    table.mesh.rotation.y = -Math.PI / 2;
+    //table.mesh.rotation.y = -Math.PI / 2;
     scene.add(table.mesh);
     
     //Dice
