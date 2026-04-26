@@ -109,8 +109,8 @@ export class Canvas implements AfterViewInit {
     const bulbLightOrange = new THREE.PointLight(0xf6bf88, 1, 100, 2);
     bulbLightOrange.castShadow = true;
     bulbLightOrange.power = 900;
-    bulbLightOrange.position.y = 7;
-    bulbLightOrange.position.z = 7;
+    bulbLightOrange.position.y = 6;
+    bulbLightOrange.position.z = 3;
     bulbLightOrange.shadow.mapSize.set(2048, 2048);
     bulbLightOrange.shadow.bias = -0.0001;
     bulbLightOrange.shadow.normalBias = 0.05;
