@@ -127,6 +127,17 @@ export class Canvas implements AfterViewInit {
     bulbLightWhite.shadow.normalBias = 0.08;
     scene.add(bulbLightWhite);
 
+    const bulbLightDice = new THREE.PointLight(0xeffffff, 8, 10, 2);
+    bulbLightDice.castShadow = true;
+    bulbLightDice.power = 2;
+    bulbLightDice.position.x = -0.8;
+    bulbLightDice.position.y = 0.55;
+    bulbLightDice.position.z = 0.70;
+    bulbLightDice.shadow.mapSize.set(2048, 2048);
+    bulbLightDice.shadow.bias = -0.00005;
+    bulbLightDice.shadow.normalBias = 0.08;
+    scene.add(bulbLightDice);
+
     // Resize
     window.addEventListener('resize', () => {
       this.cameraS.camera.aspect = window.innerWidth / window.innerHeight;

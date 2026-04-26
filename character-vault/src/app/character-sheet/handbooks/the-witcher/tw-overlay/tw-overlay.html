@@ -181,7 +181,7 @@
 
                                 <div class="roll">
                                     @if(profSkill.stat) {
-                                        <button (click)="diceService.rollDice('1d10+'+profSkill.statLvl + profSkill.profLvl)"> 1d10 + {{profSkill.statLvl + profSkill.profLvl}} </button>
+                                        <button (click)="diceService.rollDice('1d10+'+(profSkill.statLvl + profSkill.profLvl))"> 1d10 + {{profSkill.statLvl + profSkill.profLvl}} </button>
                                     }
 
                                     <div class="input-group">
