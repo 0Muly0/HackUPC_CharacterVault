@@ -37,7 +37,9 @@ export class CameraService {
 
   constructor(
     private router: Router
-  ) {}
+  ) {
+    this.initializeCamera();
+  }
 
   public initializeCamera() {
     const iw = window.innerWidth;
@@ -46,7 +48,7 @@ export class CameraService {
     this.camera = new THREE.PerspectiveCamera(40, iw / ih, 0.1, 1000);
 
     const url = window.location.href;
-    if (url.includes('/home')) {
+    if (!url.includes('/character-sheet')) {
       this.camera.position.y = 1.2;
       this.camera.position.z = 2.2;
       this.camera.rotation.x = -(25 * Math.PI) / 180;

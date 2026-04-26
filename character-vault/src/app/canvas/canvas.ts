@@ -55,8 +55,6 @@ export class Canvas implements AfterViewInit {
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.2;
 
-    this.cameraS.initializeCamera();
-
     //Composer
     const composer = new EffectComposer(renderer);
     composer.setSize(iw, ih);
