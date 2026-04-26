@@ -8,7 +8,6 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { FXAAPass } from 'three/addons/postprocessing/FXAAPass.js';
 import RAPIER from '@dimforge/rapier3d-compat';
 import { Dice } from  '../dice/dice';
-import { GUI } from 'lil-gui';
 
 import { CameraService } from './camera-service';
 
@@ -38,7 +37,6 @@ export class Canvas implements AfterViewInit {
     // Base viewport params
     const iw = window.innerWidth;
     const ih = window.innerHeight;
-    const gui = new GUI();
     // Scene
     const scene = new THREE.Scene();
     scene.background = new THREE.Color(0x222222);
@@ -96,7 +94,7 @@ export class Canvas implements AfterViewInit {
     this.diceService.registerContext('world', this.diceArray, this.cameraS.camera, loader, scene, this.world);
     //this.diceService.rollDice('2d6+2', 'world');
     this.diceService.result$.subscribe(values => {
-      console.log('All dice settled:', values);
+      alert('RESULT: ' + values[0] + ' + ' + (values[values.length-1] - values[0]) + ' = ' + values[values.length-1]);
     });
     
     // Lights
@@ -153,6 +151,7 @@ export class Canvas implements AfterViewInit {
             
             if (dice.body.isSleeping() && !dice.done){
               const result = this.getTopFace(dice);
+              console.log("RISULTATO " + result);
               this.diceService.reportResult({id: dice.id, value: result})
               dice.done = true;
             }

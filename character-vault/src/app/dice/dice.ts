@@ -5,7 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { Subject } from 'rxjs';
 
 type DiceContext = {
-  diceArray: number[];
+  diceArray: any[];
   camera: THREE.PerspectiveCamera;
   loader: GLTFLoader;
   scene: THREE.Scene;
@@ -19,7 +19,7 @@ export class Dice {
 
   private context!: DiceContext;
 
-  registerContext(contextId: string, diceArray: number[], camera: THREE.PerspectiveCamera, loader: GLTFLoader, scene: THREE.Scene, world: RAPIER.World) {
+  registerContext(contextId: string, diceArray: any[], camera: THREE.PerspectiveCamera, loader: GLTFLoader, scene: THREE.Scene, world: RAPIER.World) {
     this.context = { diceArray, camera, loader, scene, world };
   }
 
@@ -111,17 +111,23 @@ export class Dice {
       // dice.applyImpulse({ x: 1, y: 2, z: 0 }, true); // linear
       // dice.applyTorqueImpulse({ x: 0.5, y: 1, z: 0 }, true); // rotational
       dice.done = false;
-  
+      // for (let oldDice of this.context.diceArray){
+      //   oldDice.mesh.geometry.dispose();
+      //   oldDice.mesh.material.dispose();
+      //   this.context.scene.remove(oldDice.mesh);
+      //   this.context.world.removeRigidBody(oldDice.body. true);
+      // }
+      // this.context.diceArray = [];
       this.context.diceArray.push(dice);
     }
     this.currentRoll.clear();
     this.totalDices = this.context.diceArray.length;
+    console.log("TIRI DA SISTEMARE: " + this.totalDices);
   }
 
   reportResult(result: {id: number, value: number}){
     this.currentRoll.set(result.id, result.value);
 
-    if (this.currentRoll.size == this.totalDices){
       let resultsArray = Array.from(this.currentRoll.values());
       let sum = 0;
       for (let result of resultsArray)
@@ -145,7 +151,6 @@ export class Dice {
         }
       }
       this.resultSubject.next(resultsArray);
-
-    }
+      this.currentRoll.clear();
   }
 }
