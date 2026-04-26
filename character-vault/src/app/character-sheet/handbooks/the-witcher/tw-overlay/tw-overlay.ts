@@ -9,6 +9,7 @@ import { BASE_SKILLS, PROF_SKILLS } from '../config/skills.config';
 import { CharacterService } from '../../../character-service';
 import { PROFESSIONS } from '../config/professions.config';
 import { Dice } from '../../../../dice/dice';
+import { Modifier } from '../models/modifier.model';
 
 @Component({
   selector: 'app-tw-overlay',
@@ -69,6 +70,8 @@ export class TwOverlay {
     this.initBaseStatForm();
     this.initBaseSkillForm();
     this.initProfSkillForm();
+
+    this.toggleLock();
   }
 
   changeActiveView(newview: 'info'|'stsk'|'prof') {

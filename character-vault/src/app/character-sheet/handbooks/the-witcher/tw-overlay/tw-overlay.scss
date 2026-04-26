@@ -225,11 +225,24 @@
                     justify-content: space-between;
                     align-items: center;  
                     
-                    font-size: 18px;
+                    span {
+                        font-size: 18px;
+                    }
 
-                    button {
-                        height: 25px;
-                        width: 100px;
+                    .roll {
+                        display: flex;
+                        flex-direction: row;
+                        align-items: center;
+                        gap: 10px;
+
+                        .input-group {
+                            width: 80px;
+                        }
+
+                        button {
+                            height: 25px;
+                            width: 100px;
+                        }
                     }
                 }
             }
@@ -298,7 +311,7 @@
 
                         display: grid;
                         gap: 10px;
-                        grid-template-columns: auto 40px 40px 40px 120px;
+                        grid-template-columns: auto 40px 70px 40px 120px;
                         grid-template-rows: 50px;
 
                         .label {

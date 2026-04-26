@@ -84,12 +84,19 @@
 
                 <div class="stats">
                     <h3>Base Stats</h3>
-                    <form class="base-stats-form">
+                    <form class="base-stats-form" [formGroup]="baseStatForm">
                         <!-- BASE STATS -->
-                        @for(stat of baseStatsArray; track stat) {
+                        @for(stat of baseStatsArray; track stat[0]) {
                             <div class="stat">
-                                {{stat[0]}}:
-                                <button (click)="diceService.rollDice('1d10+'+stat[1])">1d10 + {{stat[1]}}</button> 
+                                <span>
+                                    {{stat[0]}}:
+                                </span>
+                                <div class="roll">
+                                    <div class="input-group">
+                                        <input type="number" [formControlName]="stat[0]">
+                                    </div>
+                                    <button (click)="diceService.rollDice('1d10+'+stat[1])">1d10 + {{stat[1]}}</button>
+                                </div> 
                             </div>
                         }   
                     </form>
@@ -120,7 +127,7 @@
                 </div>
 
                 <div class="skills-by-stats">
-                    <form class="base-skills-form">
+                    <form class="base-skills-form" [formGroup]="baseSkillForm">
                         <!-- SKILLS -->
                         @for(stat of baseSkillsArray; track stat.statKey) {                       
                             <div>
@@ -135,8 +142,8 @@
                                         <div class="cell">
                                             {{stat.statLvl}}
                                         </div>
-                                        <div class="cell">
-                                            {{skill.skillLvl}}
+                                        <div class="cell input-group">
+                                            <input type="number" [formControlName]="skill.skillKey">
                                         </div>
                                         <div class="cell">
                                             0
