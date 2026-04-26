@@ -110,7 +110,7 @@
                             @if(stat[0] == 'PUNCH' || stat[0] == 'KICK') {
                                 <div class="stat">
                                     {{stat[0]}}:
-                                    <button>1d6 + {{stat[1]}}</button> 
+                                    <button (click)="diceService.rollDice('1d6+'+stat[1])">1d6 + {{stat[1]}}</button> 
                                 </div>
                             } @else {
                                 <div class="stat">
@@ -149,7 +149,7 @@
                                             0
                                         </div>
                                         <div class="cell">
-                                            <button> 1d10 + {{stat.statLvl + skill.skillLvl}} </button>
+                                            <button (click)="diceService.rollDice('1d10+'+(stat.statLvl + skill.skillLvl))"> 1d10 + {{stat.statLvl + skill.skillLvl}} </button>
                                         </div>
                                     </div>   
                                 }
@@ -181,7 +181,7 @@
 
                                 <div class="roll">
                                     @if(profSkill.stat) {
-                                        <button> 1d10 + {{profSkill.statLvl + profSkill.profLvl}} </button>
+                                        <button (click)="diceService.rollDice('1d10+'+profSkill.statLvl + profSkill.profLvl)"> 1d10 + {{profSkill.statLvl + profSkill.profLvl}} </button>
                                     }
 
                                     <div class="input-group">
