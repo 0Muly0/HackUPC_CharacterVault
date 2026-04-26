@@ -47,8 +47,13 @@ export class Dice {
       let body: any;
       console.log(modelObject.collider.name);
       const verts = this.getConvexVerts(modelObject.collider);
-      body = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setTranslation(0,3,0).setLinearDamping(0.6).setAngularDamping(0.6));
-      world.createCollider(RAPIER.ColliderDesc.convexHull(verts), body);
+      body = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic().setLinearDamping(0.1).setAngularDamping(0.1));
+      const collider = world.createCollider(RAPIER.ColliderDesc.convexHull(verts), body)!;
+
+      if (!collider) {
+        throw new Error("Failed to create collider for dice");
+      }
+      //collider.setFriction(0.5).setRestitution(0.6);
       modelObject.body = body;
     }
 
@@ -91,14 +96,20 @@ export class Dice {
       });
       this.createPhysics(dice, this.context.world);
       
-      dice.mesh.scale.setScalar(0.05);
+      //dice.mesh.scale.setScalar(0.05);
       dice.body.setTranslation({
-        x: this.context.camera.position.x - 0.05,
+        x: this.context.camera.position.x - 0.03 - (Math.random() - 0.05) % 0.05,
         y: this.context.camera.position.y + 0.5,
-        z: this.context.camera.position.z + 0.02
+        z: this.context.camera.position.z + 0.03 - (Math.random() - 0.05) % 0.02
       }, true);
-      dice.body.setLinvel({ x: 0, y: 0, z: 0 }, true);
-      // dice.body.setAngvel({ x: Math.random() * 3, y: Math.random() * 2, z: Math.random() * -3 }, true);
+      dice.body.setRotation({
+        x: Math.random() * Math.PI,
+        y: Math.random() * Math.PI,
+        z: Math.random() * Math.PI,
+        w: 1
+      }, true);
+      // dice.applyImpulse({ x: 1, y: 2, z: 0 }, true); // linear
+      // dice.applyTorqueImpulse({ x: 0.5, y: 1, z: 0 }, true); // rotational
       dice.done = false;
   
       this.context.diceArray.push(dice);
